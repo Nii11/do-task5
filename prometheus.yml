@@ -1,0 +1,59 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: prom-service
+  labels:
+    app: prometheus
+spec:
+  ports:
+    - port: 9091
+  selector:
+    app: prometheus
+    tier: Db
+  type: Cluster
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: prom-disk
+  labels:
+    app: prometheus
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 2Gi
+---
+apiVersion: apps/v1 # for versions before 1.9.0 use apps/v1beta2
+kind: Deployment
+metadata:
+  name: prom-dep
+  labels:
+    app: prometheus
+spec:
+  selector:
+    matchLabels:
+      app: prometheus
+      tier: Db
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: prometheus
+        tier: Db
+    spec:
+      containers:
+      - image: niraj1102/prom:v3
+        name: prom1
+        ports:
+        - containerPort: 9090
+          name: prom-service
+        volumeMounts:
+        - name: prom-disk-pvc
+          mountPath: /prom_disk
+      volumes:
+      - name: prom-disk-pvc
+        persistentVolumeClaim:
+          claimName: prom-disk

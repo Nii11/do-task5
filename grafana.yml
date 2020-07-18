@@ -1,0 +1,59 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: graf-service
+  labels:
+    app: grafana
+spec:
+  ports:
+    - port: 3001
+  selector:
+    app: grafana
+    tier: Monitor
+  type: Nodeport
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: graf-disk
+  labels:
+    app: grafana
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 2Gi
+---
+apiVersion: apps/v1 # for versions before 1.9.0 use apps/v1beta2
+kind: Deployment
+metadata:
+  name: graf-dep
+  labels:
+    app: grafana
+spec:
+  selector:
+    matchLabels:
+      app: grafana
+      tier: Monitor
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: grafana
+        tier: Monitor
+    spec:
+      containers:
+      - image: niraj1102/grafana:v3
+        name: graf1
+        ports:
+        - containerPort: 3000
+          name: graf-service
+        volumeMounts:
+        - name: graf-disk-pvc
+          mountPath: /graf_disk
+      volumes:
+      - name: graf-disk-pvc
+        persistentVolumeClaim:
+          claimName: graf-disk
