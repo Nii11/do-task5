@@ -1,0 +1,24 @@
+from centos
+
+RUN yum install wget -y
+
+RUN yum install curl -y
+
+RUN yum install tar -y
+
+WORKDIR /prom_disk/
+
+RUN wget https://github.com/prometheus/prometheus/releases/download/v2.20.0-rc.0/prometheus-2.20.0-rc.0.linux-amd64.tar.gz
+
+RUN tar -xvf prometheus-2.20.0-rc.0.linux-amd64.tar.gz
+
+WORKDIR /prom_disk/prometheus-2.20.0-rc.0.linux-amd64
+
+#RUN chmod +x prometheus
+
+RUN yum install httpd -y
+
+#CMD ["cd" , "/prom_disk/prometheus-2.20.0-rc.0.linux-amd64"]
+
+CMD ./prometheus  
+

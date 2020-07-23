@@ -1,0 +1,41 @@
+FROM centos 
+
+RUN yum install wget -y
+
+WORKDIR /graf_disk
+
+RUN wget https://dl.grafana.com/oss/release/grafana-7.1.0-1.x86_64.rpm
+
+RUN yum install grafana-7.1.0-1.x86_64.rpm -y
+
+ENV GRAFANA_USER grafana
+
+ENV GRAFANA_GROUP grafana
+
+ENV GRAFANA_HOME /usr/share/grafana
+
+ENV LOG_DIR /var/log/grafana
+
+ENV DATA_DIR /var/lib/grafana
+
+ENV MAX_OPEN_FILES 10000
+
+ENV CONF_DIR /etc/grafana
+
+ENV CONF_FILE /etc/grafana/grafana.ini
+
+ENV RESTART_ON_UPGRADE true
+
+ENV PLUGINS_DIR /var/lib/grafana/plugins
+
+ENV PROVISIONING_CFG_DIR /etc/grafana/provisioning
+
+RUN yum install httpd -y
+
+#COPY run_grafana.sh /graf_disk/
+
+CMD /usr/sbin/grafana-server --config=/etc/grafana/grafana.ini -homepath /usr/share/grafana  --pidfile=/var/run/grafana/grafana-server.pid --packaging=rpm cfg:default.paths.logs=/var/log/grafana cfg:default.paths.data=/var/lib/grafana cfg:default.paths.plugins=/var/lib/grafana/plugins cfg:default.paths.provisioning=/etc/grafana/provisioning -DFOREGROUND
+
+#CMD /usr/sbin/httpd -DFOREGROUND
+
+

@@ -6,11 +6,13 @@ metadata:
     app: grafana
 spec:
   ports:
-    - port: 3001
+    - nodePort: 30002
+      port: 3000
+      targetPort: 3000
   selector:
     app: grafana
     tier: Monitor
-  type: Nodeport
+  type: NodePort
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -45,14 +47,15 @@ spec:
         tier: Monitor
     spec:
       containers:
-      - image: niraj1102/grafana:v3
+      - image: niraj1102/grap_mon:v2
         name: graf1
+        imagePullPolicy: Always
         ports:
         - containerPort: 3000
           name: graf-service
         volumeMounts:
         - name: graf-disk-pvc
-          mountPath: /graf_disk
+          mountPath: /graf_disk_1
       volumes:
       - name: graf-disk-pvc
         persistentVolumeClaim:
